@@ -82,15 +82,24 @@ template <class T> inline vec3<T> operator*(const vec3<T> &v, const vec3<T> &a)
 {
 		return vec3<T>(v.x * a.x, v.y * a.y, v.z * a.z);
 }
-template <class T> inline vec3<T> operator*(const vec3<T> &v, const T &a)
+template <class T, class U> inline vec3<T> operator*(const vec3<T> &v, const U &a)
 {
 		return vec3<T>(v.x * a, v.y * a, v.z * a);
 }
+template <class T, class U> inline vec3<T> operator*(const U &a, const vec3<T> &v)
+{
+		return vec3<T>(v.x * a, v.y * a, v.z * a);
+}
+
 template <class T> inline vec3<T> operator/(const vec3<T> &v, const vec3<T> &a)
 {
 		return vec3(v.x / a.x, v.y / a.y, v.z / a.z);
 }
-template <class T> inline vec3<T> operator/(const vec3<T> &v, const T &a)
+template <class T, class U> inline vec3<T> operator/(const vec3<T> &v, const U &a)
+{
+		return vec3<T>(v.x / a, v.y / a, v.z / a);
+}
+template <class T, class U> inline vec3<T> operator/(const U &a, const vec3<T> &v)
 {
 		return vec3<T>(v.x / a, v.y / a, v.z / a);
 }
@@ -176,15 +185,25 @@ template <class T> inline vec2<T> operator*(const vec2<T> &v, const vec2<T> &a)
 		return vec2<T>(v.x * a.x, v.y * a.y);
 }
 
-template <class T> inline vec2<T> operator*(const vec2<T> &v, const T &a)
+template <class T, class U> inline vec2<T> operator*(const vec2<T> &v, const U &a)
 {
 		return vec2<T>(v.x * a, v.y * a);
 }
+template <class T, class U> inline vec2<T> operator*(const U &a, const vec2<T> &v)
+{
+		return vec2<T>(v.x * a, v.y * a);
+}
+
 template <class T> inline vec2<T> operator/(const vec2<T> &v, const vec2<T> &a)
 {
 		return vec2(v.x / a.x, v.y / a.y);
 }
-template <class T> inline vec2<T> operator/(const vec2<T> &v, const T &a)
+
+template <class T, class U> inline vec2<T> operator/(const vec2<T> &v, const U &a)
+{
+		return vec2<T>(v.x / a, v.y / a);
+}
+template <class T, class U> inline vec2<T> operator/(const U &a, const vec2<T> &v)
 {
 		return vec2<T>(v.x / a, v.y / a);
 }
