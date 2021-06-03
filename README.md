@@ -4,7 +4,7 @@ requirements
 - GLFW
 - GLEW
 
-例:project/freefall
+例:project/freefallを実行する
 ```
 $ cd pbd2d/project/freefall
 $ g++ -std=c++17 -I ../.. -c main.cpp -o main.o
@@ -18,7 +18,7 @@ $ g++ -std=c++17 -I ../.. -c ../../opengl/point.cpp -o ../../opengl/point.o
 $ g++ main.o ../../mathfunc/vec.o ../../mathfunc/matrix.o ../../opengl/visualize.o ../../opengl/window.o ../../opengl/vertarray.o ../../opengl/line.o ../../opengl/point.o -lGLEW -lglfw -lGL  -o ./build/Program
 $ ./build/Program
 ```
-あるいは
+あるいはMakefileで
 ```
 $ cd pbd2d/project/freefall
 $ make
