@@ -11,32 +11,32 @@
 #include "opengl/line.hpp"
 #include "opengl/point.hpp"
 
-double dt = 0.005;
+float dt = 0.005;
 
-double m0 = 1.0;
-double w0 = 1.0 / m0;
-double m1 = 2.0;
-double w1 = 1.0 / m1;
+float m0 = 1.0;
+float w0 = 1.0 / m0;
+float m1 = 2.0;
+float w1 = 1.0 / m1;
 
-double L = 0.2;
+float L = 0.2;
 
-double epsilon = 0.00001;
+float epsilon = 0.00001;
 
-bool is_collide(const dvec2 &tempposi)
+bool is_collide(const fvec2 &tempposi)
 {
 		return tempposi.x < -0.8 || tempposi.x > 0.8 || tempposi.y < -0.8 || tempposi.y > 0.8;
 }
 
-void projectcollision(dvec2 &tempposi, bool &isx_collide, bool &isy_collide)
+void projectcollision(fvec2 &tempposi, bool &isx_collide, bool &isy_collide)
 {
 		if (tempposi.x < -0.8)
 		{
-				dvec2 normal(1.0, 0.0);
+				fvec2 normal(1.0, 0.0);
 
-				double C = tempposi.x - (-0.8);
-				dvec2 dC = normal;
+				float C = tempposi.x - (-0.8);
+				fvec2 dC = normal;
 
-				dvec2 dposi = dC * (-1.0f * (C / dC.dot(dC)));
+				fvec2 dposi = dC * (-1.0f * (C / dC.dot(dC)));
 
 				tempposi = tempposi + dposi;
 
@@ -44,12 +44,12 @@ void projectcollision(dvec2 &tempposi, bool &isx_collide, bool &isy_collide)
 		}
 		if (tempposi.x > 0.8)
 		{
-				dvec2 normal(-1.0, 0.0);
+				fvec2 normal(-1.0, 0.0);
 
-				double C = 0.8 - tempposi.x;
-				dvec2 dC = normal;
+				float C = 0.8 - tempposi.x;
+				fvec2 dC = normal;
 
-				dvec2 dposi = dC * (-1.0 * (C / dC.dot(dC)));
+				fvec2 dposi = dC * (-1.0 * (C / dC.dot(dC)));
 
 				tempposi = tempposi + dposi;
 
@@ -57,12 +57,12 @@ void projectcollision(dvec2 &tempposi, bool &isx_collide, bool &isy_collide)
 		}
 		if (tempposi.y < -0.8)
 		{
-				dvec2 normal(0.0, 1.0);
+				fvec2 normal(0.0, 1.0);
 
-				double C = tempposi.y - (-0.8);
-				dvec2 dC = normal;
+				float C = tempposi.y - (-0.8);
+				fvec2 dC = normal;
 
-				dvec2 dposi = dC * (-1.0 * (C / dC.dot(dC)));
+				fvec2 dposi = dC * (-1.0 * (C / dC.dot(dC)));
 
 				tempposi = tempposi + dposi;
 
@@ -70,12 +70,12 @@ void projectcollision(dvec2 &tempposi, bool &isx_collide, bool &isy_collide)
 		}
 		if (tempposi.y > 0.8)
 		{
-				dvec2 normal(0.0, -1.0);
+				fvec2 normal(0.0, -1.0);
 
-				double C = 0.8 - tempposi.y;
-				dvec2 dC = normal;
+				float C = 0.8 - tempposi.y;
+				fvec2 dC = normal;
 
-				dvec2 dposi = dC * (-1.0 * (C / dC.dot(dC)));
+				fvec2 dposi = dC * (-1.0 * (C / dC.dot(dC)));
 
 				tempposi = tempposi + dposi;
 
@@ -83,26 +83,26 @@ void projectcollision(dvec2 &tempposi, bool &isx_collide, bool &isy_collide)
 		}
 }
 
-void projectdistance(dvec2 &tempposi0, dvec2 &tempposi1)
+void projectdistance(fvec2 &tempposi0, fvec2 &tempposi1)
 {
 
-		double l = (tempposi0 - tempposi1).length();
-		dvec2 dposi0 = (tempposi1 - tempposi0).normalize() * ((w0) / (w0 + w1)) * (l - L);
-		dvec2 dposi1 = (tempposi0 - tempposi1).normalize() * ((w1) / (w0 + w1)) * (l - L);
+		float l = (tempposi0 - tempposi1).length();
+		fvec2 dposi0 = (tempposi1 - tempposi0).normalize() * ((w0) / (w0 + w1)) * (l - L);
+		fvec2 dposi1 = (tempposi0 - tempposi1).normalize() * ((w1) / (w0 + w1)) * (l - L);
 
 		tempposi0 = tempposi0 + dposi0;
 		tempposi1 = tempposi1 + dposi1;
 }
 
-void timestep(dvec2 &x0, dvec2 &v0, dvec2 &x1, dvec2 &v1)
+void timestep(fvec2 &x0, fvec2 &v0, fvec2 &x1, fvec2 &v1)
 {
 		//explicit eular
 		//gravity acceleration = 9.8 m/ss
-		dvec2 velocity0 = v0 + dvec2(0.0, -9.8) * dt;
-		dvec2 tempposi0 = x0 + velocity0 * dt;
+		fvec2 velocity0 = v0 + fvec2(0.0, -9.8) * dt;
+		fvec2 tempposi0 = x0 + velocity0 * dt;
 
-		dvec2 velocity1 = v1 + dvec2(0.0, -9.8) * dt;
-		dvec2 tempposi1 = x1 + velocity1 * dt;
+		fvec2 velocity1 = v1 + fvec2(0.0, -9.8) * dt;
+		fvec2 tempposi1 = x1 + velocity1 * dt;
 
 		//solver
 		bool isx0_collide = false;
@@ -167,11 +167,11 @@ int main(int argc, char const *argv[])
 		point1d po0(initp0, pcolor);
 		point1d po1(initp1, pcolor);
 
-		dvec2 position0(initp0[0], initp0[1]);
-		dvec2 velocity0(0.5, 1.4);
+		fvec2 position0(initp0[0], initp0[1]);
+		fvec2 velocity0(0.5, 1.4);
 
-		dvec2 position1(initp1[0], initp1[1]);
-		dvec2 velocity1(-8.5, 8.4);
+		fvec2 position1(initp1[0], initp1[1]);
+		fvec2 velocity1(-8.5, 8.4);
 
 		float vcolor[4] = {0.0, 0.0, 1.0, 0.0};
 		line2d visv0(initp0, initp0, vcolor);
