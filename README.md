@@ -7,6 +7,7 @@ requirements
 例:project/freefallを実行する
 ```
 $ cd pbd2d/project/freefall
+$ mkdir build
 $ g++ -std=c++17 -I ../.. -c main.cpp -o main.o
 $ g++ -std=c++17 -I ../.. -c ../../mathfunc/vec.cpp -o ../../mathfunc/vec.o
 $ g++ -std=c++17 -I ../.. -c ../../mathfunc/matrix.cpp -o ../../mathfunc/matrix.o
@@ -21,5 +22,6 @@ $ ./build/Program
 あるいはMakefileで
 ```
 $ cd pbd2d/project/freefall
+$ mkdir build
 $ make
 ````
