@@ -148,7 +148,7 @@ int main(int argc, char const *argv[])
 
 		Window mywindow = visualizeinit();
 
-		shader mys = shader("../../opengl/shadercode/vert.c", "../../opengl/shadercode/frag.c");
+		shader mys = shader("../../../opengl/shadercode/vert.c", "../../../opengl/shadercode/frag.c");
 		mys.useprogram();
 
 		float wp0[2] = {-0.8, -0.8};
