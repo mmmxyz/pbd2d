@@ -15,7 +15,7 @@ find_package(GLEW REQUIRED)
 include_directories(
 	..
 	${OPENGL_INCLUDE_DIRS}
-	${glfw3_ICULUDE_DIRS}
+	${glfw3_INCLUDE_DIRS}
 	${GLEW_INCLUDE_DIRS}
 )
 
