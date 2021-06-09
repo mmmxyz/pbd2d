@@ -47,6 +47,13 @@ line2d::line2d(float p0[2], float p1[2], float color[4]) : lineset(nullptr, 2)
 		varray.setposition(1, p1[0], p1[1], 0.0);
 }
 
+line2d::line2d(float p0x, float p0y, float p1x, float p1y, float color[4]) : lineset(nullptr, 2)
+{
+		varray.setcolor(color[0], color[1], color[2], color[3]);
+		varray.setposition(0, p0x, p0y, 0.0);
+		varray.setposition(1, p1x, p1y, 0.0);
+}
+
 void line2d::setposition(float p0x, float p0y, float p1x, float p1y)
 {
 		varray.setposition(0, p0x, p0y, 0.0);
