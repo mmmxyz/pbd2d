@@ -27,7 +27,7 @@ target_include_directories(Program PRIVATE
 
 set(EX_GLFWLIB "")
 if (APPLE)
-	set(EX_GLFWLIB "-framework Cocoa -framework IOKit -framework CoreFoundation")
+	set(EX_GLFWLIB "-framework Cocoa -framework OpenGL -framework IOKit")
 endif()
 
 target_link_libraries(Program PRIVATE
