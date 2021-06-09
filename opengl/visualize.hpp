@@ -4,6 +4,8 @@
 
 Window visualizeinit();
 
+double getTime();
+
 class shader
 {
 		uint32_t program;
