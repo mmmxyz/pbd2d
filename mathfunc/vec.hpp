@@ -180,6 +180,11 @@ template <class T> inline vec2<T> operator-(const vec2<T> &v, const vec2<T> &a)
 		return vec2<T>(v.x - a.x, v.y - a.y);
 }
 
+template <class T> inline vec2<T> operator-(const vec2<T> &v)
+{
+		return vec2<T>(-v.x, -v.y);
+}
+
 template <class T> inline vec2<T> operator*(const vec2<T> &v, const vec2<T> &a)
 {
 		return vec2<T>(v.x * a.x, v.y * a.y);
