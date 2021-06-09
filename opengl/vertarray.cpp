@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "3rdparty/glad/include/glad/glad.h"
 
 #include "opengl/vertarray.hpp"
 

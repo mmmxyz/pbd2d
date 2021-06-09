@@ -11,11 +11,11 @@ if(POLICY CMP0072)
 endif()
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
-find_package(GLEW REQUIRED)
 
 
 add_subdirectory(../../opengl ../../../opengl/build)
 add_subdirectory(../../mathfunc ../../../mathfunc/build)
+add_subdirectory(../../3rdparty/glad ../../../3rdparty/glad/build)
 
 add_executable(Program main.cpp)
 
@@ -36,5 +36,6 @@ target_link_libraries(Program PRIVATE
 	${OPENGL_LIBRARY}
 	glfw
 	${EX_GLFWLIB}
-	${GLEW_LIBRARIES}
+	gladLib
+	${CMAKE_DL_LIBS}
 )

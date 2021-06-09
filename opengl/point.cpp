@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "3rdparty/glad/include/glad/glad.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 

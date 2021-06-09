@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "3rdparty/glad/include/glad/glad.h"
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
@@ -15,7 +15,7 @@ Window visualizeinit()
 		if (glfwInit() == GL_FALSE)
 		{
 				std::cout << "fail to initialize glfw" << std::endl;
-				return false;
+				exit(1);
 		}
 
 		atexit(glfwTerminate);
@@ -25,10 +25,9 @@ Window visualizeinit()
 
 		Window window = Window(width, height);
 
-		glewExperimental = GL_TRUE;
-		if (glewInit() != GLEW_OK)
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
-				std::cerr << "cant initialize glew" << std::endl;
+				std::cout << "fail to create OpenGL context" << std::endl;
 				exit(1);
 		}
 
