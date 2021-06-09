@@ -43,6 +43,11 @@ Window visualizeinit()
 		return window;
 }
 
+double getTime()
+{
+		return glfwGetTime();
+}
+
 //shader
 
 void printcompilelog(GLuint shader)
