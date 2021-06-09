@@ -14,13 +14,15 @@ template <class T> class mat3
 		inline mat3(const vec3<T> &a, const vec3<T> &b, const vec3<T> &c)
 		{
 				m[0 * 3 + 0] = a.x;
-				m[0 * 3 + 1] = a.y;
-				m[0 * 3 + 2] = a.z;
-				m[1 * 3 + 0] = b.x;
+				m[0 * 3 + 1] = b.x;
+				m[0 * 3 + 2] = c.x;
+
+				m[1 * 3 + 0] = a.y;
 				m[1 * 3 + 1] = b.y;
-				m[1 * 3 + 2] = b.z;
-				m[2 * 3 + 0] = c.x;
-				m[2 * 3 + 1] = c.y;
+				m[1 * 3 + 2] = c.y;
+
+				m[2 * 3 + 0] = a.z;
+				m[2 * 3 + 1] = b.z;
 				m[2 * 3 + 2] = c.z;
 		}
 
@@ -115,8 +117,8 @@ template <class T> class mat2
 		inline mat2(const vec2<T> &a, const vec2<T> &b)
 		{
 				m[0 * 2 + 0] = a.x;
-				m[0 * 2 + 1] = a.y;
-				m[1 * 2 + 0] = b.x;
+				m[0 * 2 + 1] = b.x;
+				m[1 * 2 + 0] = a.y;
 				m[1 * 2 + 1] = b.y;
 		}
 
@@ -136,6 +138,14 @@ template <class T> class mat2
 		inline T det() const
 		{
 				return m[0] * m[3] - m[1] * m[2];
+		}
+
+		inline mat2<T> inverse() const
+		{
+				T det = this->det();
+				T data[4] = {m[3] / det, -m[1] / det, -m[2] / det, m[0] / det};
+
+				return mat2<T>(data);
 		}
 
 		//cast operator
