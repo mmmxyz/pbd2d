@@ -23,5 +23,3 @@ class Window
 
 		void clear();
 };
-
-static void keyinput(GLFWwindow *window, int key, int scancode, int action, int mods);

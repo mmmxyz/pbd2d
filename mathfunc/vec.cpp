@@ -9,6 +9,9 @@ template class vec3<double>;
 
 //menber function
 
+template float vec2<float>::length() const;
+template double vec2<double>::length() const;
+
 template <class T> T vec3<T>::length() const
 {
 		return sqrt(this->sqlength());
@@ -43,6 +46,9 @@ template class vec2<float>;
 template class vec2<double>;
 
 //menber function
+
+template float vec2<float>::length() const;
+template double vec2<double>::length() const;
 
 template <class T> T vec2<T>::length() const
 {

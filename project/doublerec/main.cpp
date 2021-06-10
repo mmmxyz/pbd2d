@@ -203,14 +203,14 @@ class rect : public object
 										fvec2 ts = hoge * (p[i] - v.p[j]);
 										fvec2 cp = ts.y * (p[ii] - p[i]) + p[i];
 
-										////test
-										//{
-										//		float ccolor[4] = {0.0, 0.2, 0.8, 0.0};
-										//		float cposi[2] = {cp.x, cp.y};
-										//		point1d contact(cposi, ccolor);
-										//		contact.draw();
-										//}
-										//////
+										//test
+										{
+												float ccolor[4] = {0.0, 0.2, 0.8, 0.0};
+												float cposi[2] = {cp.x, cp.y};
+												point1d contact(cposi, ccolor);
+												contact.draw();
+										}
+										////
 
 										qlist.push_back(cp);
 
@@ -341,7 +341,7 @@ void timestep(rect &r0, rect &r1)
 		float sn = 1.0;
 
 		//solver
-		for (uint32_t loopcounter = 0; loopcounter < 10; loopcounter++)
+		for (uint32_t loopcounter = 0; loopcounter < 30; loopcounter++)
 		{
 				for (auto &x : icv)
 						x->projection(sn);
@@ -414,7 +414,7 @@ int main(int argc, char const *argv[])
 				//wait event
 				mywindow.clearstatus();
 				mywindow.pollevent();
-				mywindow.waitevent(100);
+				//mywindow.waitevent(100);
 
 				step++;
 				cout << "step: " << step;
