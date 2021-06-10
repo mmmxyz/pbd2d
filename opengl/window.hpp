@@ -9,6 +9,7 @@ class Window
 		GLFWwindow *const window;
 
 	  public:
+		bool wait;
 		Window(uint32_t width = 640, uint32_t height = 480);
 
 		bool is_shouldclose();
@@ -16,6 +17,11 @@ class Window
 		void swapbuf();
 		void pollevent();
 		void waitevent(double sec);
+		void clearstatus();
+
+		bool shouldwait();
 
 		void clear();
 };
+
+static void keyinput(GLFWwindow *window, int key, int scancode, int action, int mods);

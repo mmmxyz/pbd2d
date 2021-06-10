@@ -23,7 +23,11 @@ target_include_directories(Program PRIVATE
 	../..
 )
 
-
+if (APPLE)
+	link_directories(Program
+		"/usr/local/lib"
+		)
+endif()
 
 set(EX_GLFWLIB "")
 if (APPLE)
@@ -33,9 +37,9 @@ endif()
 target_link_libraries(Program PRIVATE
 	mathLib
 	glLib
+	${EX_GLFWLIB}
 	${OPENGL_LIBRARY}
 	glfw
-	${EX_GLFWLIB}
 	gladLib
 	${CMAKE_DL_LIBS}
 )

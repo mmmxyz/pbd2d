@@ -15,7 +15,7 @@ find_package(glfw3 REQUIRED)
 set(EX_INC "")
 if(APPLE)
 	set(EX_INC "/usr/local/include")
-endif
+endif()
 
 include_directories(
 	../3rdparty/glad/include
