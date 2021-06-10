@@ -1,4 +1,5 @@
-#include "3rdparty/glad/include/glad/glad.h"
+#include <glad/glad.h>
+#include <KHR/khrplatform.h>
 
 #include "opengl/vertarray.hpp"
 

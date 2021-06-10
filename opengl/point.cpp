@@ -1,4 +1,5 @@
-#include "3rdparty/glad/include/glad/glad.h"
+#include <glad/glad.h>
+#include <KHR/khrplatform.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 

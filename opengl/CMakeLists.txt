@@ -12,6 +12,7 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
 include_directories(
+	../3rdparty/glad/include
 	..
 	${OPENGL_INCLUDE_DIRS}
 	${glfw3_INCLUDE_DIRS}
