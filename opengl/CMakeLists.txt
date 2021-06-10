@@ -11,11 +11,18 @@ endif()
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
+
+set(EX_INC "")
+if(APPLE)
+	set(EX_INC "/usr/local/include")
+endif
+
 include_directories(
 	../3rdparty/glad/include
 	..
 	${OPENGL_INCLUDE_DIRS}
 	${glfw3_INCLUDE_DIRS}
+	${EX_INC}
 )
 
 add_library(glLib STATIC
