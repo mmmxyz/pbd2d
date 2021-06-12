@@ -12,6 +12,9 @@ template class vec3<double>;
 template float vec3<float>::length() const;
 template double vec3<double>::length() const;
 
+template vec3<float> vec3<float>::normalize() const;
+template vec3<double> vec3<double>::normalize() const;
+
 template <class T> T vec3<T>::length() const
 {
 		return sqrt(this->sqlength());
@@ -33,13 +36,6 @@ template <class T> std::ostream &operator<<(std::ostream &os, const vec3<T> &vec
 		return os;
 }
 
-//static function
-
-template <class T> vec3<T> vec3<T>::normalize(const vec3<T> &a)
-{
-		return a / a.length();
-}
-
 //------------
 
 template class vec2<float>;
@@ -49,6 +45,9 @@ template class vec2<double>;
 
 template float vec2<float>::length() const;
 template double vec2<double>::length() const;
+
+template vec2<float> vec2<float>::normalize() const;
+template vec2<double> vec2<double>::normalize() const;
 
 template <class T> T vec2<T>::length() const
 {
@@ -69,11 +68,4 @@ template <class T> std::ostream &operator<<(std::ostream &os, const vec2<T> &vec
 {
 		os << vec.x << " " << vec.y;
 		return os;
-}
-
-//static function
-
-template <class T> vec2<T> vec2<T>::normalize(const vec2<T> &a)
-{
-		return a / a.length();
 }

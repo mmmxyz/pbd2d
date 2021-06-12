@@ -174,7 +174,7 @@ class rect : public object
 				}
 		}
 
-		bool is_collidebar(const fvec2 a0, fvec2 a1, fvec2 b0, fvec2 b1) const
+		bool is_collidebar(const fvec2 a0, const fvec2 a1, const fvec2 b0, const fvec2 b1) const
 		{
 				fvec2 v = b0 - a0;
 				fvec2 w = b1 - a0;
@@ -182,11 +182,9 @@ class rect : public object
 				return v.cross(a1 - a0) * w.cross(a1 - a0) < -0.0;
 		}
 
-		bool is_collide(rect &v, fvec2 &q)
+		void createcollide(rect &r, std::vector<std::shared_ptr<constraint>> &consset)
 		{
-				q = fvec2(0.0, 0.0);
-				std::vector<fvec2> qlist;
-				bool is = false;
+
 				for (uint32_t i = 0; i < 4; i++)
 				{
 						uint32_t ii = (i + 1) % 4;
@@ -194,60 +192,44 @@ class rect : public object
 						{
 								uint32_t jj = (j + 1) % 4;
 
-								if (is_collidebar(p[i], p[ii], v.p[j], v.p[jj]) &&
-									is_collidebar(v.p[j], v.p[jj], p[i], p[ii]))
-								{
-										fmat2 hoge(v.p[jj] - v.p[j], -p[ii] + p[i]);
-										hoge = hoge.inverse();
+								if (is_collidebar(p[i], p[ii], r.p[j], r.p[jj]) &&
+									is_collidebar(r.p[jj], r.p[j], p[i], p[ii])
 
-										fvec2 ts = hoge * (p[i] - v.p[j]);
-										fvec2 cp = ts.y * (p[ii] - p[i]) + p[i];
+								)
+								{
+										fmat2 hoge(p[ii] - p[i], r.p[j] - r.p[jj]);
+										hoge = hoge.inverse();
+										fvec2 ts = hoge * (r.p[j] - p[i]);
+										fvec2 cp = ts.x * (p[ii] - p[i]) + p[i];
 
 										//test
+										float ccolor[4] = {0.0, 0.0, 0.0, 0.0};
+										float cposi[2] = {cp.x, cp.y};
+										point1d contact(cposi, ccolor);
+										contact.draw();
+										float wcolor[4] = {0.0, 0.0, 1.0, 0.0};
+										//
+
+										if ((p[ii] - p[i]).cross(r.p[j] - p[i]) < 0.0)
 										{
-												float ccolor[4] = {0.0, 0.2, 0.8, 0.0};
-												float cposi[2] = {cp.x, cp.y};
-												point1d contact(cposi, ccolor);
-												contact.draw();
+												consset.emplace_back(
+													std::make_shared<collision>(p[i], cnormal[i], cp, cp - p[i]));
+
+												float hogep[2] = {p[i].x, p[i].y};
+												line2d contactlod(hogep, cposi, wcolor);
+												contactlod.draw();
 										}
-										////
+										else
+										{
+												consset.emplace_back(
+													std::make_shared<collision>(p[ii], cnormal[ii], cp, cp - p[ii]));
 
-										qlist.push_back(cp);
-
-										is = is || true;
+												float hogep[2] = {p[ii].x, p[ii].y};
+												line2d contactlod(hogep, cposi, wcolor);
+												contactlod.draw();
+										}
 								}
 						}
-				}
-
-				for (auto &x : qlist)
-						q = q + x;
-				q = q / (qlist.size());
-
-				return is;
-		}
-
-		void createcollide(rect &r, fvec2 q, std::vector<std::shared_ptr<constraint>> &consset)
-		{
-
-				fvec2 gv = (m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3] * v[3]) / (m[0] + m[1] + m[2] + m[3]);
-				fvec2 agv = (r.m[0] * r.p[0] + r.m[1] * r.p[1] + r.m[2] * r.p[2] + r.m[3] * r.p[3]) /
-							(r.m[0] + r.m[1] + r.m[2] + r.m[3]);
-
-				//float ratio =
-				//	(m[0] + m[1] + m[2] + m[3]) / (m[0] + m[1] + m[2] + m[3] + r.m[0] + r.m[1] + r.m[2] + r.m[3]);
-
-				//fvec2 q = ratio * agv + (1.0 - ratio) * gv;
-
-				//test
-				float ccolor[4] = {0.0, 0.0, 0.0, 0.0};
-				float cposi[2] = {q.x, q.y};
-				point1d contact(cposi, ccolor);
-				contact.draw();
-				////
-
-				for (uint32_t i = 0; i < 4; i++)
-				{
-						consset.emplace_back(std::make_shared<collision>(p[i], cnormal[i], q, -(gv - agv)));
 				}
 		}
 
@@ -331,12 +313,8 @@ void timestep(rect &r0, rect &r1)
 		r1.createwallcollision(ecv);
 
 		//collision detection object and object
-		fvec2 q;
-		if (r0.is_collide(r1, q))
-		{
-				r0.createcollide(r1, q, ecv);
-				r1.createcollide(r0, q, ecv);
-		}
+		r0.createcollide(r1, ecv);
+		r1.createcollide(r0, ecv);
 
 		float sn = 1.0;
 
@@ -348,6 +326,7 @@ void timestep(rect &r0, rect &r1)
 
 				for (auto &x : ecv)
 						x->projection(sn);
+				sn *= 1.0;
 		}
 
 		r0.refineposition();
@@ -377,10 +356,10 @@ int main(int argc, char const *argv[])
 		line2d wl3(wp3, wp0, wcolor);
 
 		float color0[4] = {1.0, 0.0, 0.0, 0.0};
-		rect r0(1.0, fvec2(0.0, -0.5), 0.3, 0.2, fvec2(0.0, 0.0), -0.10, color0);
+		rect r0(1.0, fvec2(0.0, 0.5), 0.3, 0.2, fvec2(0.0, 0.0), -0.10, color0);
 
 		float color1[4] = {0.0, 1.0, 0.0, 0.0};
-		rect r1(1.0, fvec2(0.1, -0.3), 0.4, 0.1, fvec2(0.0, 0.5), 0.10, color1);
+		rect r1(1.0, fvec2(0.1, -0.7), 0.4, 0.1, fvec2(0.0, 0.5), 0.10, color1);
 
 		double ctime = 0.0;
 		double ltime = 0.0;
@@ -414,7 +393,6 @@ int main(int argc, char const *argv[])
 				//wait event
 				mywindow.clearstatus();
 				mywindow.pollevent();
-				//mywindow.waitevent(100);
 
 				step++;
 				cout << "step: " << step;

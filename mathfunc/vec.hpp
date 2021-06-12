@@ -60,7 +60,6 @@ template <class T> class vec3
 		{
 				return vec3::dot(a, vec3::cross(b, c));
 		}
-		static vec3<T> normalize(const vec3<T> &a);
 };
 
 //io operator
@@ -162,7 +161,6 @@ template <class T> class vec2
 		{
 				return a.cross(b);
 		}
-		static vec2<T> normalize(const vec2<T> &a);
 };
 
 //io operator
