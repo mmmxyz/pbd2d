@@ -19,6 +19,10 @@ Window visualizeinit()
 				exit(1);
 		}
 
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 		atexit(glfwTerminate);
 
 		uint32_t width = 1024;
