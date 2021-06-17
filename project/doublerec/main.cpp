@@ -192,6 +192,7 @@ class rect : public object
 						{
 								uint32_t jj = (j + 1) % 4;
 
+								//2つのrectについて、4*4=16通りの辺の組み合わせで衝突判定
 								if (is_collidebar(p[i], p[ii], r.p[j], r.p[jj]) &&
 									is_collidebar(r.p[jj], r.p[j], p[i], p[ii])
 
@@ -200,9 +201,10 @@ class rect : public object
 										fmat2 hoge(p[ii] - p[i], r.p[j] - r.p[jj]);
 										hoge = hoge.inverse();
 										fvec2 ts = hoge * (r.p[j] - p[i]);
+										//衝突ポイント collision point
 										fvec2 cp = ts.x * (p[ii] - p[i]) + p[i];
 
-										//test
+										//test cpを表示 debug用
 										float ccolor[4] = {0.0, 0.0, 0.0, 0.0};
 										float cposi[2] = {cp.x, cp.y};
 										point1d contact(cposi, ccolor);
@@ -210,11 +212,13 @@ class rect : public object
 										float wcolor[4] = {0.0, 0.0, 1.0, 0.0};
 										//
 
+										//貫通している法の頂点を押し出す。
 										if ((p[ii] - p[i]).cross(r.p[j] - p[i]) < 0.0)
 										{
 												consset.emplace_back(
 													std::make_shared<collision>(p[i], cnormal[i], cp, cp - p[i]));
 
+												//debug用
 												float hogep[2] = {p[i].x, p[i].y};
 												line2d contactlod(hogep, cposi, wcolor);
 												contactlod.draw();
@@ -224,6 +228,7 @@ class rect : public object
 												consset.emplace_back(
 													std::make_shared<collision>(p[ii], cnormal[ii], cp, cp - p[ii]));
 
+												//debug用
 												float hogep[2] = {p[ii].x, p[ii].y};
 												line2d contactlod(hogep, cposi, wcolor);
 												contactlod.draw();
