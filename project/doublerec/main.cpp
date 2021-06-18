@@ -28,11 +28,13 @@ class collision : public constraint
 {
 		const fvec2 normal;
 		const fvec2 q;
+		const float ratio; //系に対する当該質点の質量比
 		fvec2 &p;
 		fvec2 &cn;
 
 	  public:
-		collision(fvec2 &x, fvec2 &cn, fvec2 q, fvec2 n) : p(x), cn(cn), q(q), normal(n.normalize())
+		collision(fvec2 &x, fvec2 &cn, fvec2 q, float ratio, fvec2 n)
+			: p(x), cn(cn), q(q), ratio(ratio), normal(n.normalize())
 		{
 		}
 
@@ -44,7 +46,7 @@ class collision : public constraint
 
 				fvec2 dC = normal;
 
-				fvec2 dposi = dC * (-(C / dC.sqlength()));
+				fvec2 dposi = ratio * dC * (-(C / dC.sqlength()));
 
 				p = p + sn * dposi;
 				cn = cn + normal;
@@ -75,6 +77,43 @@ class distance : public constraint
 		}
 };
 
+class bend : public constraint
+{
+		const float m0, m1;
+		const float w0, w1;
+		const float theta;
+		fvec2 &p0;
+		fvec2 &p1;
+		fvec2 &ref;
+
+	  public:
+		bend(float m0, float m1, float theta, fvec2 &p0, fvec2 &p1, fvec2 &ref)
+			: m0(m0), m1(m1), w0(1.0 / m0), w1(1.0 / m1), theta(theta), p0(p0), p1(p1), ref(ref)
+		{
+		}
+
+		void projection(float sn) override
+		{
+				fvec2 v0 = (p0 - ref).normalize();
+				fvec2 v1 = (p1 - ref).normalize();
+
+				float v0dv1 = v0.dot(v1);
+				float C = std::acos(v0dv1) - theta;
+				if (std::isnan(C))
+						return;
+				float darc = -1.0 / (std::sqrt(1 - v0dv1 * v0dv1));
+
+				fvec2 dC0 = darc * (1.0 / (p0 - ref).length()) * (v1 - v0dv1 * v0);
+				fvec2 dC1 = darc * (1.0 / (p1 - ref).length()) * (v0 - v0dv1 * v1);
+
+				fvec2 dp0 = -1.0 * C / (w0 * dC0.sqlength() + w1 * dC1.sqlength()) * w0 * dC0;
+				fvec2 dp1 = -1.0 * C / (w0 * dC0.sqlength() + w1 * dC1.sqlength()) * w1 * dC1;
+
+				p0 = p0 + dp0;
+				p1 = p1 + dp1;
+		}
+};
+
 void wallcollisioncreate(fvec2 &tempposi, fvec2 &cn, std::vector<std::shared_ptr<constraint>> &v)
 {
 
@@ -84,7 +123,7 @@ void wallcollisioncreate(fvec2 &tempposi, fvec2 &cn, std::vector<std::shared_ptr
 				fvec2 normal(1.0, 0.0);
 				q.x = -0.8;
 
-				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, normal));
+				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, 1.0, normal));
 		}
 		if (tempposi.x > 0.8)
 		{
@@ -92,7 +131,7 @@ void wallcollisioncreate(fvec2 &tempposi, fvec2 &cn, std::vector<std::shared_ptr
 				fvec2 normal(-1.0, 0.0);
 				q.x = 0.8;
 
-				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, normal));
+				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, 1.0, normal));
 		}
 		if (tempposi.y < -0.8)
 		{
@@ -100,7 +139,7 @@ void wallcollisioncreate(fvec2 &tempposi, fvec2 &cn, std::vector<std::shared_ptr
 				fvec2 normal(0.0, 1.0);
 				q.y = -0.8;
 
-				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, normal));
+				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, 1.0, normal));
 		}
 		if (tempposi.y > 0.8)
 		{
@@ -108,7 +147,7 @@ void wallcollisioncreate(fvec2 &tempposi, fvec2 &cn, std::vector<std::shared_ptr
 				fvec2 normal(0.0, -1.0);
 				q.y = 0.8;
 
-				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, normal));
+				v.emplace_back(std::make_shared<collision>(tempposi, cn, q, 1.0, normal));
 		}
 }
 
@@ -145,15 +184,15 @@ class rect : public object
 															 fvec2(center.x + width / 2.0, center.y - height / 2.0),
 															 fvec2(center.x + width / 2.0, center.y + height / 2.0),
 															 fvec2(center.x - width / 2.0, center.y + height / 2.0)},
-			  color{color[0], color[1], color[2], color[3]}, lod{line2d(p[0].x, p[0].y, p[1].x, p[1].y, color),
-																 line2d(p[1].x, p[1].y, p[2].x, p[2].y, color),
-																 line2d(p[2].x, p[2].y, p[3].x, p[3].y, color),
-																 line2d(p[3].x, p[3].y, p[0].x, p[0].y, color)},
-			  edge{point2d(p[0].x, p[0].y, p[1].x, p[1].y, color), point2d(p[1].x, p[1].y, p[2].x, p[2].y, color),
-				   point2d(p[2].x, p[2].y, p[3].x, p[3].y, color), point2d(p[3].x, p[3].y, p[0].x, p[0].y, color)}
+			  color{color[0], color[1], color[2], color[3]}, lod{line2d(x[0].x, x[0].y, x[1].x, x[1].y, color),
+																 line2d(x[1].x, x[1].y, x[2].x, x[2].y, color),
+																 line2d(x[2].x, x[2].y, x[3].x, x[3].y, color),
+																 line2d(x[3].x, x[3].y, x[0].x, x[0].y, color)},
+			  edge{point2d(x[0].x, x[0].y, x[1].x, x[1].y, color), point2d(x[1].x, x[1].y, x[2].x, x[2].y, color),
+				   point2d(x[2].x, x[2].y, x[3].x, x[3].y, color), point2d(x[3].x, x[3].y, x[0].x, x[0].y, color)}
 
 		{
-				float mat[4] = {1.0, -1.0, 1.0, 1.0};
+				float mat[4] = {0.0, -1.0, 1.0, 0.0};
 				fmat2 rot90(mat);
 
 				for (uint32_t i = 0; i < 4; i++)
@@ -216,7 +255,7 @@ class rect : public object
 										if ((p[ii] - p[i]).cross(r.p[j] - p[i]) < 0.0)
 										{
 												consset.emplace_back(
-													std::make_shared<collision>(p[i], cnormal[i], cp, cp - p[i]));
+													std::make_shared<collision>(p[i], cnormal[i], cp, 0.5, cp - p[i]));
 
 												//debug用
 												float hogep[2] = {p[i].x, p[i].y};
@@ -225,8 +264,8 @@ class rect : public object
 										}
 										else
 										{
-												consset.emplace_back(
-													std::make_shared<collision>(p[ii], cnormal[ii], cp, cp - p[ii]));
+												consset.emplace_back(std::make_shared<collision>(p[ii], cnormal[ii], cp,
+																								 0.5, cp - p[ii]));
 
 												//debug用
 												float hogep[2] = {p[ii].x, p[ii].y};
@@ -282,10 +321,10 @@ class rect : public object
 								L = width;
 
 						consset.emplace_back(std::make_shared<distance>(m[i], m[j], p[i], p[j], L));
+
+						uint32_t jj = (i + 2) % 4;
+						consset.emplace_back(std::make_shared<bend>(m[i], m[jj], 3.14 * 0.5, p[i], p[jj], p[j]));
 				}
-				float L = std::sqrt(width * width + height * height);
-				consset.emplace_back(std::make_shared<distance>(m[0], m[2], p[0], p[2], L));
-				consset.emplace_back(std::make_shared<distance>(m[1], m[3], p[1], p[3], L));
 		}
 
 		void createwallcollision(std::vector<std::shared_ptr<constraint>> &consset) override
@@ -361,10 +400,10 @@ int main(int argc, char const *argv[])
 		line2d wl3(wp3, wp0, wcolor);
 
 		float color0[4] = {1.0, 0.0, 0.0, 0.0};
-		rect r0(1.0, fvec2(0.0, 0.5), 0.3, 0.2, fvec2(0.0, 0.0), -0.10, color0);
+		rect r0(1.0, fvec2(0.0, 0.5), 0.3, 0.2, fvec2(0.0, -3.0), -0.05, color0);
 
 		float color1[4] = {0.0, 1.0, 0.0, 0.0};
-		rect r1(1.0, fvec2(0.1, -0.7), 0.4, 0.1, fvec2(0.0, 0.5), 0.10, color1);
+		rect r1(1.0, fvec2(0.1, -0.7), 0.4, 0.1, fvec2(0.0, 0.5), 0.08, color1);
 
 		double ctime = 0.0;
 		double ltime = 0.0;
@@ -398,6 +437,7 @@ int main(int argc, char const *argv[])
 				//wait event
 				mywindow.clearstatus();
 				mywindow.pollevent();
+				//mywindow.waitevent(100);
 
 				step++;
 				cout << "step: " << step;
