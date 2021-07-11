@@ -3,11 +3,14 @@
 #include <cmath>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 #include <unistd.h>
 
 #include "mathfunc/vec.hpp"
 #include "mathfunc/matrix.hpp"
+
+#include "mathfunc/geometry.hpp"
 
 #include "opengl/visualize.hpp"
 #include "opengl/window.hpp"
@@ -281,112 +284,6 @@ class rect : public object
 				}
 		}
 
-		bool is_collidebarline(const fvec2 a0, const fvec2 a1, const fvec2 b0, const fvec2 b1) const
-		{
-				//line a0,a1
-				//bar b0,b1
-				fvec2 v = b0 - a0;
-				fvec2 w = b1 - a0;
-
-				return v.cross(a1 - a0) * w.cross(a1 - a0) < 0.0;
-		}
-
-		bool is_collidebarbar(const fvec2 a0, const fvec2 a1, const fvec2 b0, const fvec2 b1) const
-		{
-
-				return is_collidebarline(a0, a1, b0, b1) && is_collidebarline(b0, b1, a0, a1);
-		}
-
-		bool is_collidebarray(const fvec2 a0, const fvec2 a1, const fvec2 b0, const fvec2 b1) const
-		{
-				//ray a0 to a1
-				//bar b0,b1
-
-				if (is_collidebarline(a0, a1, b0, b1))
-				{
-						fmat2 hoge(a1 - a0, b0 - b1);
-						hoge = hoge.inverse();
-						fvec2 ts = hoge * (b0 - a0);
-						if (ts.x >= 0.0)
-								return true;
-				}
-				return false;
-		}
-
-		bool is_inside(const fvec2 &v)
-		{
-
-				fvec2 center = (p[0] + p[1] + p[2] + p[3]) / 4.0;
-
-				fvec2 v0 = v - p[0];
-				fvec2 x = p[1] - p[0];
-				fvec2 y = p[3] - p[0];
-				float xc = x.dot(v0);
-				float yc = y.dot(v0);
-
-				if (epsilon < xc && xc < width * width - epsilon && epsilon < yc && yc < height * height - epsilon)
-						return true;
-				else
-						return false;
-		}
-
-		void createcollide(rect &r, std::vector<std::shared_ptr<constraint>> &consset)
-		{
-
-				float ratio = (m[0] + m[1] + m[2] + m[3]) / (r.m[0] + r.m[1] + r.m[2] + r.m[3]);
-
-				fvec2 rgv = (r.v[0] + r.v[1] + r.v[2] + r.v[3]) / 4;
-
-				for (uint32_t i = 0; i < 4; i++)
-				{
-						if (r.is_inside(p[i]))
-						{
-
-								float ccolor[4] = {0.0, 1.0, 1.0, 0.0};
-								float cposi[2] = {p[i].x - 0.001f, p[i].y + 0.001f};
-								point1d contact(cposi, ccolor);
-								contact.draw();
-
-								float wcolor[4] = {1.0, 1.0, 0.0, 0.0};
-								float hogep[2] = {p[i].x, p[i].y};
-								float hogepv[2] = {p[i].x - (v[i].x - rgv.x), p[i].y - (v[i].y - rgv.y)};
-								line2d contactlod(hogep, hogepv, wcolor);
-								contactlod.draw();
-
-								for (uint32_t j = 0; j < 4; j++)
-								{
-										uint32_t jj = (j + 1) % 4;
-
-										if (is_collidebarray(p[i], p[i] - (v[i] - rgv), r.p[j], r.p[jj]))
-										{
-
-												fvec2 normal((r.p[jj] - r.p[j]).y, -(r.p[jj] - r.p[j]).x);
-												normal = normal.normalize();
-
-												fmat2 hoge(normal, r.p[j] - r.p[jj]);
-												hoge = hoge.inverse();
-												fvec2 ts = hoge * (r.p[j] - p[i]);
-												////衝突ポイント collision point
-												fvec2 cp = ts.x * normal + p[i];
-
-												//test
-												float ccolor[4] = {0.0, 0.0, 0.0, 0.0};
-												float cposi[2] = {cp.x, cp.y};
-												point1d contact(cposi, ccolor);
-												contact.draw();
-
-												consset.emplace_back(
-													std::make_shared<collision>(p[i], cnormal[i], cp, ratio, normal));
-												consset.emplace_back(std::make_shared<collision>(
-													r.p[j], r.cnormal[j], cp, 0.5 / ratio, -normal));
-												consset.emplace_back(std::make_shared<collision>(
-													r.p[jj], r.cnormal[jj], cp, 0.5 / ratio, -normal));
-										}
-								}
-						}
-				}
-		}
-
 		void resetcn() override
 		{
 				for (uint32_t i = 0; i < 4; i++)
@@ -406,7 +303,10 @@ class rect : public object
 						cnormal[i] = cnormal[i].normalize();
 
 						if (cnormal[i].sqlength() > 0.0 && cnormal[i].dot(v[i]) < 0.0)
-								v[i] = v[i] - 2 * cnormal[i].dot(v[i]) * cnormal[i];
+						{
+								//restitution 0.8
+								v[i] = v[i] - 0.9 * 2 * cnormal[i].dot(v[i]) * cnormal[i];
+						}
 				}
 		}
 
@@ -451,6 +351,327 @@ class rect : public object
 		}
 };
 
+void drawminkowskidiff(rect &r0, rect &r1)
+{
+		float color[4] = {0.4, 0.4, 0.8, 1.0};
+
+		for (uint32_t i = 0; i < 4; i++)
+		{
+				for (uint32_t j = 0; j < 4; j++)
+				{
+						point1d p(r0.p[i] - r1.p[j], color);
+						p.draw();
+				}
+		}
+
+		float zerocolor[4] = {0.0, 0.0, 0.0, 1.0};
+		point1d zero(fvec2(), zerocolor);
+		zero.draw();
+}
+
+struct support
+{
+		fvec2 vector;
+		uint32_t index0, index1;
+};
+
+fvec2 supportfunc(const rect &r, const fvec2 d, uint32_t &index)
+{
+		fvec2 hoge = r.p[0];
+		float max = hoge.dot(d);
+		index = 0;
+		for (uint32_t i = 1; i < 4; i++)
+		{
+				if (r.p[i].dot(d) >= max)
+				{
+						hoge = r.p[i];
+						max = r.p[i].dot(d);
+						index = i;
+				}
+		}
+
+		return hoge;
+}
+
+support supportA_B(const rect &r0, const rect &r1, const fvec2 &d)
+{
+		fvec2 dn = d.normalize();
+		uint32_t index0, index1;
+
+		fvec2 vector = supportfunc(r0, dn, index0) - supportfunc(r1, -dn, index1);
+
+		return {vector, index0, index1};
+}
+
+void collisionrect2rect(rect &r0, rect &r1, std::vector<std::shared_ptr<constraint>> &consset)
+{
+
+		fvec2 o = fvec2();
+
+		fvec2 displace; //r0を動かすべき変位
+
+		uint32_t l00, l01;
+		uint32_t l10, l11;
+		{
+				//gjk
+				support a0, a1, a2;
+
+				{
+
+						a0 = supportA_B(r0, r1, fvec2(1.0, 0.0));
+
+						a1 = supportA_B(r0, r1, -a0.vector);
+
+						if ((a1.vector - a0.vector).length() < epsilon)
+								return;
+
+						auto [dist, b] = distanceline2point(a0.vector, a1.vector, o);
+
+						a2 = supportA_B(r0, r1, -b);
+
+						if ((a2.vector - a0.vector).length() < epsilon || (a2.vector - a1.vector).length() < epsilon)
+								return;
+
+						if ((a1.vector - a0.vector).cross(a2.vector - a0.vector) < 0.0)
+						{
+								support temp = a0;
+								a0 = a1;
+								a1 = temp;
+						}
+				}
+
+				struct supportset
+				{
+						float dist;
+						fvec2 v;
+						support p0;
+						support p1;
+				};
+
+				std::vector<supportset> list;
+
+				while (1)
+				{
+
+						auto [dist, c, l0, l1] = distancetriangle2point(a0.vector, a1.vector, a2.vector, o);
+
+						if (dist <= 0.0)
+						{
+
+								auto [dist0, v0] = distancesegment2point(a0.vector, a1.vector, o);
+								list.emplace_back(supportset{dist0, v0, a0, a1});
+								auto [dist1, v1] = distancesegment2point(a1.vector, a2.vector, o);
+								list.emplace_back(supportset{dist1, v1, a1, a2});
+								auto [dist2, v2] = distancesegment2point(a2.vector, a0.vector, o);
+								list.emplace_back(supportset{dist2, v2, a2, a0});
+
+								break;
+						}
+
+						support b = supportA_B(r0, r1, -c);
+
+						if ((a0.vector - b.vector).length() < epsilon || (a1.vector - b.vector).length() < epsilon ||
+							(a2.vector - b.vector).length() < epsilon)
+								return;
+
+						if (epsilon < (a0.vector - l0).length() && epsilon < (a0.vector - l1).length())
+						{
+								a0 = b;
+						}
+						else if (epsilon < (a1.vector - l0).length() && epsilon < (a1.vector - l1).length())
+						{
+								a1 = b;
+						}
+						//else if (epsilon < (a2.vector - l0).length() < epsilon && epsilon < (a2.vector - l1).length())
+						else
+						{
+								a2 = b;
+						}
+
+						//a0 = l0;
+						//a1 = l1;
+						//a2 = b;
+
+						if ((a1.vector - a0.vector).cross(a2.vector - a0.vector) < 0.0)
+						{
+								support temp = a0;
+								a0 = a1;
+								a1 = temp;
+						}
+				}
+
+				//std::sort(list.begin(), list.end(), [](supportset a, supportset b) -> bool { return a.dist < b.dist; });
+
+				//for (auto x : list)
+				//{
+				//		std::cout << "!!!!!!" << std::endl;
+				//		std::cout << x.dist << std::endl;
+				//		std::cout << x.v << std::endl;
+				//		std::cout << x.p0.vector << std::endl;
+				//		std::cout << x.p1.vector << std::endl;
+				//		std::cout << "!!!!!!" << std::endl;
+				//}
+
+				float tricolor[4] = {0.5, 0.0, 0.0, 1.0};
+				float tricolorx[4] = {0.5, 0.4, 0.0, 1.0};
+				line2d tri0(a0.vector, a1.vector, tricolorx);
+				line2d tri1(a1.vector, a2.vector, tricolor);
+				line2d tri2(a2.vector, a0.vector, tricolor);
+				drawminkowskidiff(r0, r1);
+
+				line2d cp(o, list[0].p0.vector, tricolorx);
+
+				tri0.draw();
+				tri1.draw();
+				tri2.draw();
+				cp.draw();
+
+				//epa
+				//uint32_t counter = 0;
+				while (1)
+				{
+						//counter++;
+						//if (counter > 100)
+						//		return;
+
+						std::sort(list.begin(), list.end(),
+								  [](supportset a, supportset b) -> bool { return a.dist < b.dist; });
+
+						fvec2 v = list[0].v;
+						support l0 = list[0].p0;
+						support l1 = list[0].p1;
+
+						support b = supportA_B(r0, r1, v);
+
+						//std::cout << "-----" << std::endl;
+						//std::cout << v << std::endl;
+						//std::cout << b.vector << std::endl;
+						//std::cout << l0.vector << std::endl;
+						//std::cout << l1.vector << std::endl;
+						//std::cout << "-----" << std::endl;
+
+						bool hoge = false;
+						for (auto x : list)
+						{
+
+								if ((x.p0.index0 == b.index0 && x.p0.index1 == b.index1) ||
+									(x.p1.index0 == b.index0 && x.p1.index1 == b.index1))
+										hoge = true;
+						}
+						if (hoge)
+						//if ((l0.vector - b.vector).length() < epsilon || (l1.vector - b.vector).length() < epsilon)
+						{
+								displace = -v;
+
+								l00 = l0.index0;
+								l01 = l0.index1;
+								l10 = l1.index0;
+								l11 = l1.index1;
+								//fvec2 temp0 = findindex(r0, r1, l0, l00, l01);
+								//if ((l0 - temp0).length() > epsilon)
+								//		std::cout << "errRRRRRRRRRRRRRRR" << std::endl;
+
+								//fvec2 temp1 = fetchsupportcomponent(r0, r1, l1, l10, l11);
+								//if ((l1 - temp1).length() > epsilon)
+								//		std::cout << "errRRRRRRRRRRRRRRR" << std::endl;
+
+								//drawminkowskidiff(r0, r1);
+								float color[4] = {0.0, 1.0, 0.0, 1.0};
+								line2d disp(o, -displace, color);
+								disp.draw();
+
+								//std::cout << displace << std::endl;
+
+								break;
+						}
+
+						list.erase(list.begin());
+
+						auto [dist0, v0] = distancesegment2point(l0.vector, b.vector, o);
+						auto [dist1, v1] = distancesegment2point(l1.vector, b.vector, o);
+
+						list.emplace_back(supportset{dist0, v0, l0, b});
+						list.emplace_back(supportset{dist1, v1, l1, b});
+
+						line2d edge0(l0.vector, b.vector, tricolor);
+						line2d edge1(l1.vector, b.vector, tricolor);
+						edge0.draw();
+						edge1.draw();
+				}
+		}
+
+		float ratio = (r0.m[0] + r0.m[1] + r0.m[2] + r0.m[3]) / (r1.m[0] + r1.m[1] + r1.m[2] + r1.m[3]);
+		float lcolor[4] = {0.3, 0.3, 0.1, 1.0};
+
+		{
+				if (l00 == l10)
+				{
+
+						consset.emplace_back(std::make_shared<collision>(
+							r0.p[l00], r0.cnormal[l00], r0.p[l00] + 1.0 * displace, 1.0f / ratio, displace));
+				}
+				else
+				{
+						consset.emplace_back(std::make_shared<collision>(
+							r0.p[l00], r0.cnormal[l00], r0.p[l00] + 1.0 * displace, 1.0f / ratio, displace));
+						consset.emplace_back(std::make_shared<collision>(
+							r0.p[l10], r0.cnormal[l10], r0.p[l00] + 1.0 * displace, 1.0f / ratio, displace));
+				}
+				line2d hoge0(r0.p[l00], r0.p[l00] + 3.0 * displace, lcolor);
+				point1d hogep0(r0.p[l00] + 3.0 * displace, lcolor);
+				line2d hoge1(r0.p[l10], r0.p[l10] + 3.0 * displace, lcolor);
+				point1d hogep1(r0.p[l10] + 3.0 * displace, lcolor);
+
+				if (l01 == l11)
+				{
+
+						consset.emplace_back(std::make_shared<collision>(r1.p[l01], r1.cnormal[l01],
+																		 r1.p[l01] - 1.0 * displace, ratio, -displace));
+				}
+				else
+				{
+						consset.emplace_back(std::make_shared<collision>(r1.p[l01], r1.cnormal[l01],
+																		 r1.p[l01] - 1.0 * displace, ratio, -displace));
+						consset.emplace_back(std::make_shared<collision>(r1.p[l11], r1.cnormal[l11],
+																		 r1.p[l01] - 1.0 * displace, ratio, -displace));
+				}
+				line2d hoge2(r1.p[l01], r1.p[l01] - 3.0 * displace, lcolor);
+				point1d hogep2(r1.p[l01] - 3.0 * displace, lcolor);
+				line2d hoge3(r1.p[l11], r1.p[l11] - 3.0 * displace, lcolor);
+				point1d hogep3(r1.p[l11] - 3.0 * displace, lcolor);
+
+				hoge0.draw();
+				hogep0.draw();
+				hoge1.draw();
+				hogep1.draw();
+				hoge2.draw();
+				hogep2.draw();
+				hoge3.draw();
+				hogep3.draw();
+		}
+
+		//for (uint32_t i = 0; i < 4; i++)
+		//{
+		//		consset.emplace_back(std::make_shared<collision>(r0.p[i], r0.cnormal[i], r0.p[i] + 1.0 * displace,
+		//														 1.0f / ratio, displace));
+		//		consset.emplace_back(
+		//			std::make_shared<collision>(r1.p[i], r1.cnormal[i], r1.p[i] - 1.0 * displace, ratio, -displace));
+
+		//		float lcolor[4] = {0.3, 0.3, 0.6, 0.0};
+
+		//		line2d hoge0(r0.p[i], r0.p[i] + 1.0 * displace, lcolor);
+		//		point1d hogep0(r0.p[i] + 1.0 * displace, lcolor);
+
+		//		line2d hoge1(r1.p[i], r1.p[i] - 1.0 * displace, lcolor);
+		//		point1d hogep1(r1.p[i] - 1.0 * displace, lcolor);
+
+		//		hoge0.draw();
+		//		hoge1.draw();
+		//		hogep0.draw();
+		//		hogep1.draw();
+		//}
+}
+
 void timestep(rect &r0, rect &r1)
 {
 
@@ -472,8 +693,9 @@ void timestep(rect &r0, rect &r1)
 		r1.createwallcollision(ecv);
 
 		//collision detection object and object
-		r0.createcollide(r1, ecv);
-		r1.createcollide(r0, ecv);
+		//r0.createcollide(r1, ecv);
+		//r1.createcollide(r0, ecv);
+		collisionrect2rect(r0, r1, ecv);
 
 		float sn = 1.0;
 
@@ -485,7 +707,7 @@ void timestep(rect &r0, rect &r1)
 
 				for (auto &x : ecv)
 						x->projection(sn);
-				sn *= 0.9;
+				sn *= 0.6;
 		}
 
 		r0.refineposition();
@@ -508,17 +730,17 @@ int main(int argc, char const *argv[])
 		float wp1[2] = {0.8, -0.8};
 		float wp2[2] = {0.8, 0.8};
 		float wp3[2] = {-0.8, 0.8};
-		float wcolor[4] = {0.0, 0.0, 0.0, 0.0};
+		float wcolor[4] = {0.0, 0.0, 0.0, 1.0};
 		line2d wl0(wp0, wp1, wcolor);
 		line2d wl1(wp1, wp2, wcolor);
 		line2d wl2(wp2, wp3, wcolor);
 		line2d wl3(wp3, wp0, wcolor);
 
-		float color0[4] = {1.0, 0.0, 0.0, 0.0};
-		rect r0(2.0, fvec2(-0.4, 0.5), 0.3, 0.4, fvec2(2.0, 5.0), -50.5, color0);
+		float color0[4] = {1.0, 0.0, 0.0, 0.6};
+		rect r0(1.0, fvec2(0.0, 0.3), 0.3, 0.4, fvec2(-10.0, 2.0), 10.0, color0);
 
-		float color1[4] = {0.0, 1.0, 0.0, 0.0};
-		rect r1(1.0, fvec2(0.4, -0.6), 0.4, 0.1, fvec2(-2.0, 4.5), 50.8, color1);
+		float color1[4] = {0.0, 1.0, 0.0, 0.6};
+		rect r1(2.0, fvec2(0.3, -0.30), 1.0, 0.1, fvec2(20.0, -3.0), 0.0, color1);
 
 		double ctime = 0.0;
 		double ltime = 0.0;
@@ -552,6 +774,8 @@ int main(int argc, char const *argv[])
 				//wait event
 				mywindow.clearstatus();
 				mywindow.pollevent();
+
+				//mywindow.waitevent(100);
 
 				step++;
 				cout << "step: " << step;

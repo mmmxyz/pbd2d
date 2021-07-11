@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdint>
+#include <cmath>
 
 #include "mathfunc/vec.hpp"
 #include "mathfunc/matrix.hpp"
@@ -31,6 +32,17 @@ template <class T> std::ostream &operator<<(std::ostream &os, const mat3<T> &mat
 
 template class mat2<float>;
 template class mat2<double>;
+
+template <class T> mat2<T>::mat2(const double &omega)
+{
+		float cos = std::cos(omega);
+		float sin = std::sin(omega);
+
+		m[0] = cos;
+		m[1] = -sin;
+		m[2] = sin;
+		m[3] = cos;
+}
 
 //standard io
 

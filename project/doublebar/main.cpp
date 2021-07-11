@@ -133,7 +133,7 @@ class bar
 				//		return;
 
 				//test
-				float ccolor[4] = {0.0, 0.0, 0.0, 0.0};
+				float ccolor[4] = {0.0, 0.0, 0.0, 1.0};
 				float cposi[2] = {cp.x, cp.y};
 				point1d contact(cposi, ccolor);
 				contact.draw();
@@ -240,7 +240,7 @@ int main(int argc, char const *argv[])
 		float wp1[2] = {0.8, -0.8};
 		float wp2[2] = {0.8, 0.8};
 		float wp3[2] = {-0.8, 0.8};
-		float wcolor[4] = {0.0, 0.0, 0.0, 0.0};
+		float wcolor[4] = {0.0, 0.0, 0.0, 1.0};
 		line2d wl0(wp0, wp1, wcolor);
 		line2d wl1(wp1, wp2, wcolor);
 		line2d wl2(wp2, wp3, wcolor);
@@ -250,14 +250,14 @@ int main(int argc, char const *argv[])
 		fvec2 p01(-0.3, 0.3);
 		fvec2 v00(2.7, 1.4);
 		fvec2 v01(2.4, 1.3);
-		float barcolor0[4] = {1.0, 0.0, 0.0, 0.0};
+		float barcolor0[4] = {1.0, 0.0, 0.0, 1.0};
 		bar b0(1.0, 2.0, 0.3, p00, p01, v00, v01, barcolor0);
 
 		fvec2 p10(0.4, 0.3);
 		fvec2 p11(0.4, 0.0);
 		fvec2 v10(-1.3, 1.4);
 		fvec2 v11(-1.4, 2.3);
-		float barcolor1[4] = {0.0, 1.0, 0.0, 0.0};
+		float barcolor1[4] = {0.0, 1.0, 0.0, 1.0};
 		bar b1(2.0, 3.0, 0.4, p10, p11, v10, v11, barcolor1);
 
 		double ctime = 0.0;

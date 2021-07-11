@@ -122,6 +122,11 @@ template <class T> class vec2
 		inline vec2(const T &value) : x(value), y(value)
 		{
 		}
+		inline vec2(const T (&a)[2])
+		{
+				x = a[0];
+				y = a[1];
+		}
 		inline vec2(void) : x(0.0), y(0.0)
 		{
 		}
@@ -144,6 +149,8 @@ template <class T> class vec2
 		T length() const;
 
 		vec2<T> normalize() const;
+
+		vec2<T> rot() const;
 
 		template <class U> operator vec2<U>() const
 		{

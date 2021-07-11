@@ -12,4 +12,5 @@ include_directories(
 add_library(mathLib STATIC
 	vec.cpp
 	matrix.cpp
+	geometry.cpp
 )

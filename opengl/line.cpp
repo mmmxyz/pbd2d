@@ -8,6 +8,8 @@
 #include "opengl/line.hpp"
 #include "opengl/vertarray.hpp"
 
+#include "mathfunc/vec.hpp"
+
 lineset::lineset(vertex *data, uint32_t vsize) : varray(vsize, data), vsize(vsize)
 {
 }
@@ -55,8 +57,22 @@ line2d::line2d(float p0x, float p0y, float p1x, float p1y, float color[4]) : lin
 		varray.setposition(1, p1x, p1y, 0.0);
 }
 
+line2d::line2d(const fvec2 &v0, const fvec2 &v1, float color[4]) : lineset(nullptr, 2)
+{
+
+		varray.setcolor(color[0], color[1], color[2], color[3]);
+		varray.setposition(0, v0.x, v0.y, 0.0);
+		varray.setposition(1, v1.x, v1.y, 0.0);
+}
+
 void line2d::setposition(float p0x, float p0y, float p1x, float p1y)
 {
 		varray.setposition(0, p0x, p0y, 0.0);
 		varray.setposition(1, p1x, p1y, 0.0);
+}
+
+void line2d::setposition(const fvec2 &v0, const fvec2 &v1)
+{
+		varray.setposition(0, v0.x, v0.y, 0.0);
+		varray.setposition(1, v1.x, v1.y, 0.0);
 }

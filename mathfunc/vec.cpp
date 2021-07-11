@@ -49,6 +49,9 @@ template double vec2<double>::length() const;
 template vec2<float> vec2<float>::normalize() const;
 template vec2<double> vec2<double>::normalize() const;
 
+template vec2<float> vec2<float>::rot() const;
+template vec2<double> vec2<double>::rot() const;
+
 template <class T> T vec2<T>::length() const
 {
 		return sqrt(this->sqlength());
@@ -57,6 +60,11 @@ template <class T> T vec2<T>::length() const
 template <class T> vec2<T> vec2<T>::normalize() const
 {
 		return (*this) / this->length();
+}
+
+template <class T> vec2<T> vec2<T>::rot() const
+{
+		return vec2<T>(-1.0 * (this->y), this->x);
 }
 
 //standard io

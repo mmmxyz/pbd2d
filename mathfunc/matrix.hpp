@@ -134,6 +134,8 @@ template <class T> class mat2
 						m[i] = 0.0;
 		}
 
+		mat2(const double &omega);
+
 		//menber func
 		inline T det() const
 		{

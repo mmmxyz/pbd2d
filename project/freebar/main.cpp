@@ -155,7 +155,7 @@ int main(int argc, char const *argv[])
 		float wp1[2] = {0.8, -0.8};
 		float wp2[2] = {0.8, 0.8};
 		float wp3[2] = {-0.8, 0.8};
-		float wcolor[4] = {0.0, 0.0, 0.0, 0.0};
+		float wcolor[4] = {0.0, 0.0, 0.0, 1.0};
 		line2d wl0(wp0, wp1, wcolor);
 		line2d wl1(wp1, wp2, wcolor);
 		line2d wl2(wp2, wp3, wcolor);
@@ -163,7 +163,7 @@ int main(int argc, char const *argv[])
 
 		float initp0[2] = {0.0, 0.0};
 		float initp1[2] = {0.0, 0.2};
-		float pcolor[4] = {1.0, 0.0, 0.0, 0.0};
+		float pcolor[4] = {1.0, 0.0, 0.0, 1.0};
 		point1d po0(initp0, pcolor);
 		point1d po1(initp1, pcolor);
 
@@ -173,11 +173,11 @@ int main(int argc, char const *argv[])
 		fvec2 position1(initp1[0], initp1[1]);
 		fvec2 velocity1(-8.5, 8.4);
 
-		float vcolor[4] = {0.0, 0.0, 1.0, 0.0};
+		float vcolor[4] = {0.0, 0.0, 1.0, 1.0};
 		line2d visv0(initp0, initp0, vcolor);
 		line2d visv1(initp1, initp1, vcolor);
 
-		float lodcolor[4] = {0.0, 1.0, 0.0, 0.0};
+		float lodcolor[4] = {0.0, 1.0, 0.0, 1.0};
 		line2d lod(initp0, initp1, lodcolor);
 
 		uint32_t step = 0;

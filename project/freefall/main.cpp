@@ -107,20 +107,20 @@ int main(int argc, char const *argv[])
 		float wp1[2] = {0.8, -0.8};
 		float wp2[2] = {0.8, 0.8};
 		float wp3[2] = {-0.8, 0.8};
-		float wcolor[4] = {0.0, 0.0, 0.0, 0.0};
+		float wcolor[4] = {0.0, 0.0, 0.0, 1.0};
 		line2d wl0(wp0, wp1, wcolor);
 		line2d wl1(wp1, wp2, wcolor);
 		line2d wl2(wp2, wp3, wcolor);
 		line2d wl3(wp3, wp0, wcolor);
 
 		float initp[2] = {0.0, 0.0};
-		float pcolor[4] = {1.0, 0.0, 0.0, 0.0};
+		float pcolor[4] = {1.0, 0.0, 0.0, 1.0};
 		point1d po(initp, pcolor);
 
 		fvec2 position(initp[0], initp[1]);
 		fvec2 velocity(0.5, 1.4);
 
-		float vcolor[4] = {0.0, 0.0, 1.0, 0.0};
+		float vcolor[4] = {0.0, 0.0, 1.0, 1.0};
 		line2d visv(initp, initp, vcolor);
 
 		uint32_t step = 0;

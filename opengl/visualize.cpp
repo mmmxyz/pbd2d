@@ -45,6 +45,10 @@ Window visualizeinit()
 		//mics OpenGL setting
 		glPointSize(10.0f);
 
+		//alpha blend on
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+
 		return window;
 }
 

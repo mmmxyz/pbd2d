@@ -4,6 +4,8 @@
 
 #include "opengl/vertarray.hpp"
 
+#include "mathfunc/vec.hpp"
+
 class pointset
 {
 	  protected:
@@ -27,7 +29,9 @@ class point2d : public pointset
 	  public:
 		point2d(float p0[2], float p1[2], float color[4]);
 		point2d(float p0x, float p0y, float p1x, float p1y, float color[4]);
+		point2d(const fvec2 &a0, const fvec2 &a1, float color[4]);
 		void setposition(float p0x, float p0y, float p1x, float p1y);
+		void setposition(const fvec2 &p0, const fvec2 &p1);
 };
 
 class point1d : public pointset
@@ -35,5 +39,7 @@ class point1d : public pointset
 
 	  public:
 		point1d(float p0[2], float color[4]);
+		point1d(const fvec2 &v, float color[4]);
 		void setposition(float p0x, float p0y);
+		void setposition(const fvec2 &v);
 };
