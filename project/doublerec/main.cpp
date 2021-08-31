@@ -600,7 +600,8 @@ void collisionrect2rect(rect &r0, rect &r1, std::vector<std::shared_ptr<constrai
 				}
 		}
 
-		float ratio = (r0.m[0] + r0.m[1] + r0.m[2] + r0.m[3]) / (r1.m[0] + r1.m[1] + r1.m[2] + r1.m[3]);
+		float ratio = (r0.m[0] + r0.m[1] + r0.m[2] + r0.m[3]) /
+					  (r0.m[0] + r0.m[1] + r0.m[2] + r0.m[3] + r1.m[0] + r1.m[1] + r1.m[2] + r1.m[3]);
 		float lcolor[4] = {0.3, 0.3, 0.1, 1.0};
 
 		{
@@ -608,14 +609,14 @@ void collisionrect2rect(rect &r0, rect &r1, std::vector<std::shared_ptr<constrai
 				{
 
 						consset.emplace_back(std::make_shared<collision>(
-							r0.p[l00], r0.cnormal[l00], r0.p[l00] + 1.0 * displace, 1.0f / ratio, displace));
+							r0.p[l00], r0.cnormal[l00], r0.p[l00] + 1.0 * displace, 1.0f - ratio, displace));
 				}
 				else
 				{
 						consset.emplace_back(std::make_shared<collision>(
-							r0.p[l00], r0.cnormal[l00], r0.p[l00] + 1.0 * displace, 1.0f / ratio, displace));
+							r0.p[l00], r0.cnormal[l00], r0.p[l00] + 1.0 * displace, 0.5 * (1.0f - ratio), displace));
 						consset.emplace_back(std::make_shared<collision>(
-							r0.p[l10], r0.cnormal[l10], r0.p[l00] + 1.0 * displace, 1.0f / ratio, displace));
+							r0.p[l10], r0.cnormal[l10], r0.p[l00] + 1.0 * displace, 0.5 * (1.0f - ratio), displace));
 				}
 				line2d hoge0(r0.p[l00], r0.p[l00] + 3.0 * displace, lcolor);
 				point1d hogep0(r0.p[l00] + 3.0 * displace, lcolor);
@@ -630,10 +631,10 @@ void collisionrect2rect(rect &r0, rect &r1, std::vector<std::shared_ptr<constrai
 				}
 				else
 				{
-						consset.emplace_back(std::make_shared<collision>(r1.p[l01], r1.cnormal[l01],
-																		 r1.p[l01] - 1.0 * displace, ratio, -displace));
-						consset.emplace_back(std::make_shared<collision>(r1.p[l11], r1.cnormal[l11],
-																		 r1.p[l01] - 1.0 * displace, ratio, -displace));
+						consset.emplace_back(std::make_shared<collision>(
+							r1.p[l01], r1.cnormal[l01], r1.p[l01] - 1.0 * displace, 0.5 * (ratio), -displace));
+						consset.emplace_back(std::make_shared<collision>(
+							r1.p[l11], r1.cnormal[l11], r1.p[l01] - 1.0 * displace, 0.5 * (ratio), -displace));
 				}
 				line2d hoge2(r1.p[l01], r1.p[l01] - 3.0 * displace, lcolor);
 				point1d hogep2(r1.p[l01] - 3.0 * displace, lcolor);
@@ -707,7 +708,8 @@ void timestep(rect &r0, rect &r1)
 
 				for (auto &x : ecv)
 						x->projection(sn);
-				sn *= 0.6;
+
+				sn *= 0.8;
 		}
 
 		r0.refineposition();
@@ -737,10 +739,10 @@ int main(int argc, char const *argv[])
 		line2d wl3(wp3, wp0, wcolor);
 
 		float color0[4] = {1.0, 0.0, 0.0, 0.6};
-		rect r0(1.0, fvec2(0.0, 0.3), 0.3, 0.4, fvec2(-10.0, 2.0), 10.0, color0);
+		rect r0(1.0, fvec2(0.3, 0.3), 0.3, 0.4, fvec2(-1.0, 2.0), 10.0, color0);
 
 		float color1[4] = {0.0, 1.0, 0.0, 0.6};
-		rect r1(2.0, fvec2(0.3, -0.30), 1.0, 0.1, fvec2(20.0, -3.0), 0.0, color1);
+		rect r1(1.0, fvec2(-0.3, -0.20), 0.8, 0.1, fvec2(0.0, -3.0), 0.0, color1);
 
 		double ctime = 0.0;
 		double ltime = 0.0;

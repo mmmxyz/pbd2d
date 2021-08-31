@@ -10,13 +10,15 @@
 
 #include "mathfunc/vec.hpp"
 
-lineset::lineset(vertex *data, uint32_t vsize) : varray(vsize, data), vsize(vsize)
+lineset::lineset(vertex *data, uint32_t vsize) : varray(vsize, data), vsize(vsize), isize(0)
 {
+		isindexed = false;
 }
 
 lineset::lineset(vertex *data, uint32_t vsize, uint32_t *idata, uint32_t isize)
-	: varray(vsize, data, isize, idata), vsize(vsize)
+	: varray(vsize, data, isize, idata), vsize(vsize), isize(isize)
 {
+		isindexed = true;
 }
 
 void lineset::setdata(vertex *data)
@@ -36,9 +38,18 @@ void lineset::setcolor(float r, float g, float b, float alpha)
 
 void lineset::draw() const
 {
-		varray.bind();
-		glDrawArrays(GL_LINE_STRIP, 0, vsize);
-		varray.unbind();
+		if (isindexed)
+		{
+				varray.bind();
+				glDrawElements(GL_LINE_STRIP, isize, GL_UNSIGNED_INT, (void *)0);
+				varray.unbind();
+		}
+		else
+		{
+				varray.bind();
+				glDrawArrays(GL_LINE_STRIP, 0, vsize);
+				varray.unbind();
+		}
 }
 
 //=====

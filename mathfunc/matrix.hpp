@@ -49,6 +49,24 @@ template <class T> class mat3
 				return m[6] * temp[0] + m[7] * temp[1] + m[8] * temp[2];
 		}
 
+		inline mat3<T> inverse() const
+		{
+				T det = this->det();
+				T data[9];
+
+				data[0] = (m[4] * m[8] - m[5] * m[7]) / det;
+				data[1] = -(m[1] * m[8] - m[2] * m[7]) / det;
+				data[2] = (m[1] * m[5] - m[2] * m[4]) / det;
+				data[3] = -(m[3] * m[8] - m[5] * m[6]) / det;
+				data[4] = (m[0] * m[8] - m[2] * m[6]) / det;
+				data[5] = -(m[0] * m[5] - m[2] * m[3]) / det;
+				data[6] = (m[3] * m[7] - m[4] * m[6]) / det;
+				data[7] = -(m[0] * m[7] - m[1] * m[6]) / det;
+				data[8] = (m[0] * m[4] - m[1] * m[3]) / det;
+
+				return mat3<T>(data);
+		}
+
 		//cast operator
 
 		template <class U> operator mat3<U>() const
@@ -149,6 +167,25 @@ template <class T> class mat2
 
 				return mat2<T>(data);
 		}
+		inline T sqlength() const
+		{
+				return m[0] * m[0] + m[1] * m[1] + m[2] * m[2] + m[3] * m[3];
+		}
+
+		inline T trace() const
+		{
+				return m[0] + m[3];
+		}
+
+		inline mat2<T> transpose()
+		{
+				T data[4];
+				data[0] = m[0];
+				data[1] = m[2];
+				data[2] = m[1];
+				data[3] = m[3];
+				return mat2<T>(data);
+		}
 
 		//cast operator
 
@@ -162,7 +199,7 @@ template <class T> class mat2
 		}
 
 		//static func
-		inline static mat2<T> indentity()
+		inline static mat2<T> identity()
 		{
 				mat2<T> temp = mat2<T>();
 				temp.m[0] = 1.0;
@@ -194,6 +231,44 @@ template <class T> const inline mat2<T> operator*(const mat2<T> &mat, const mat2
 		}
 
 		return mat2<T>(p);
+}
+
+template <class T, class U> inline mat2<T> operator*(const mat2<T> &v, const U &a)
+{
+		T data[4];
+		data[0] = v.m[0] * a;
+		data[1] = v.m[1] * a;
+		data[2] = v.m[2] * a;
+		data[3] = v.m[3] * a;
+		return mat2<T>(data);
+}
+template <class T, class U> inline mat2<T> operator*(const U &a, const mat2<T> &v)
+{
+		T data[4];
+		data[0] = v.m[0] * a;
+		data[1] = v.m[1] * a;
+		data[2] = v.m[2] * a;
+		data[3] = v.m[3] * a;
+		return mat2<T>(data);
+}
+
+template <class T> inline mat2<T> operator+(const mat2<T> &v, const mat2<T> &a)
+{
+		T data[4];
+		data[0] = v.m[0] + a.m[0];
+		data[1] = v.m[1] + a.m[1];
+		data[2] = v.m[2] + a.m[2];
+		data[3] = v.m[3] + a.m[3];
+		return mat2<T>(data);
+}
+template <class T> inline mat2<T> operator-(const mat2<T> &v, const mat2<T> &a)
+{
+		T data[4];
+		data[0] = v.m[0] - a.m[0];
+		data[1] = v.m[1] - a.m[1];
+		data[2] = v.m[2] - a.m[2];
+		data[3] = v.m[3] - a.m[3];
+		return mat2<T>(data);
 }
 
 // alias

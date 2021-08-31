@@ -11,6 +11,8 @@ class lineset
 	  protected:
 		vertarray varray;
 		const uint32_t vsize;
+		const uint32_t isize;
+		bool isindexed;
 
 	  public:
 		lineset(vertex *data, uint32_t vsize);

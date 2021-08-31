@@ -23,6 +23,7 @@ vertarray::vertarray(uint32_t size, vertex *data, uint32_t isize, uint32_t *ilis
 						va[i].color[0] = 0.0f;
 						va[i].color[1] = 0.0f;
 						va[i].color[2] = 0.0f;
+						va[i].color[3] = 1.0f;
 				}
 		}
 
@@ -46,10 +47,11 @@ vertarray::vertarray(uint32_t size, vertex *data, uint32_t isize, uint32_t *ilis
 				glGenBuffers(1, &ibo);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, isize * sizeof(GLuint), ilist, GL_STATIC_DRAW);
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+				//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		}
 
 		glBindVertexArray(0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void vertarray::setdata(vertex *data)
